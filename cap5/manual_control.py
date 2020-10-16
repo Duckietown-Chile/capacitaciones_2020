@@ -17,7 +17,7 @@ from gym_duckietown.envs import DuckietownEnv
 from gym_duckietown.wrappers import UndistortWrapper
 import pyAprilTag
 
-from to_pose import homography_to_pose
+import shapeUtil as su
 
 # from experiments.utils import save_img
 
@@ -116,16 +116,19 @@ def update(dt):
         fy = 238.67758
         cx = 0
         cy=0
-        
+        A = np.matrix([[fx, 0.0, 0.0], [0.0, fy, 0.0], [0.0, 0.0, 1.0]])
+
         for i, detection in enumerate(Hs):
             print('Detection {} of {}:'.format(i + 1, num_detections))
             print()
             print(ids[i])
             print(Hs[i])
             print()
-            M = homography_to_pose(Hs[i],fx,fy,cx,cy)
-            print(M)
-            
+            (R, T) = su.decHomography(A, Hs[i])
+            Rot = su.decRotation(R)
+            print('rX: {:0.2f} rY: {:0.2f} rZ: {:0.2f}'.format(Rot[0] * 180 / np.pi, Rot[1] * 180 / np.pi, Rot[2] * 180 / np.pi))
+            print('tX: {:0.2f} tY: {:0.2f} tZ: {:0.2f}'.format(T[0, 0], T[0, 1], T[0, 2]))
+
     if done:
         print('done!')
         env.reset()
