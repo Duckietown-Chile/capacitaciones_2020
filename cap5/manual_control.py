@@ -115,7 +115,7 @@ def update(dt):
         fx = 220.2460
         fy = 238.67758
         cx = 0
-        cy=0
+        cy = 0
         A = np.matrix([[fx, 0.0, 0.0], [0.0, fy, 0.0], [0.0, 0.0, 1.0]])
 
         for i, detection in enumerate(Hs):
@@ -125,7 +125,20 @@ def update(dt):
             print(Hs[i])
             print()
             (R, T) = su.decHomography(A, Hs[i])
+            # 3.3 cm mide el arista del apriltag
+            T = T*0.033
             Rot = su.decRotation(R)
+
+            # matriz de traslacion entre el centro del robot y la camara (7cm en x y 7cm en z)
+            Trc = np.matrix([[1,0,0,0.07],[0,1,0,0],[0,0,1,0.07],[0,0,0,1]])
+            # para transformar del sistema de la camara al sistema del robot se necesitan dos rotaciones y una traslacion Rx*Rz*Trc (Rx -90grad)(Rz -90grad)
+            # matriz de rotacion de -90 en z (no estoy seguro)
+            Rz = np.matrix([[0,0,0,1],[0,0,0,1],[0,0,-90,1],[0,0,0,1]])
+            # matriz de rotacion de -90 en x
+            Rx = np.matrix([[-90,0,0,1],[0,0,0,1],[0,0,-90,1],[0,0,0,1]])
+
+            pose_april = Rx*Ry*Trc
+
             print('rX: {:0.2f} rY: {:0.2f} rZ: {:0.2f}'.format(Rot[0] * 180 / np.pi, Rot[1] * 180 / np.pi, Rot[2] * 180 / np.pi))
             print('tX: {:0.2f} tY: {:0.2f} tZ: {:0.2f}'.format(T[0, 0], T[0, 1], T[0, 2]))
 
